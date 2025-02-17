@@ -81,7 +81,7 @@ public class UserService {
 
     public void updateUser(Long id, UserEntity updatedUser) throws UserNotFoundException {
         UserEntity existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with this ID not exist!!!"));
+            .orElseThrow(() -> new UserNotFoundException("User with this ID not exist!!!"));
 
         existingUser.setUserName(updatedUser.getUserName());
         existingUser.setPassword(updatedUser.getPassword());
