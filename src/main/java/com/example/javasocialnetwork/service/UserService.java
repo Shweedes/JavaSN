@@ -37,8 +37,7 @@ public class UserService {
         if (optionalUser.isPresent()) {
             return User.toModel(optionalUser.get());
         } else {
-            // Обработка случая, когда пользователь не найден, например, выброс исключения
-            throw new UserNotFoundException("User with this id does not exist!!!");
+            throw new UserNotFoundException("User with this id not exist!!!");
         }
     }
 
@@ -52,7 +51,7 @@ public class UserService {
         if (optionalUser.isPresent()) {
             return optionalUser.get();
         } else {
-            throw new UserNotFoundException("User with this id does not exist!!!");
+            throw new UserNotFoundException("User with this id not exist!!!");
         }
     }
 
@@ -60,7 +59,7 @@ public class UserService {
             GroupNotFoundException {
         UserEntity user = getUserById(userId);
         GroupEntity group = groupRepository.findById(groupId)
-            .orElseThrow(() -> new GroupNotFoundException("Group with this id does not exist!!!"));
+            .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!!!"));
 
         user.addGroup(group);
         userRepository.save(user);
@@ -70,7 +69,7 @@ public class UserService {
             GroupNotFoundException {
         UserEntity user = getUserById(userId);
         GroupEntity group = groupRepository.findById(groupId)
-            .orElseThrow(() -> new GroupNotFoundException("Group with this id does not exist!!!"));
+            .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!!!"));
 
         user.removeGroup(group);
         userRepository.save(user);
@@ -78,6 +77,16 @@ public class UserService {
 
     public Set<GroupEntity> getUserGroups(Long userId) throws UserNotFoundException {
         return getUserById(userId).getGroups();
+    }
+
+    public void updateUser(Long id, UserEntity updatedUser) throws UserNotFoundException {
+        UserEntity existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with this ID not exist!!!"));
+
+        existingUser.setUserName(updatedUser.getUserName());
+        existingUser.setPassword(updatedUser.getPassword());
+
+        userRepository.save(existingUser);
     }
 }
 

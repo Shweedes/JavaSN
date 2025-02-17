@@ -31,7 +31,6 @@ public class GroupService {
         if (optionalGroup.isPresent()) {
             return optionalGroup.get();
         } else {
-            // Обработка случая, когда пользователь не найден, например, выброс исключения
             throw new GroupNotFoundException("User with this id does not exist!!!");
         }
     }
@@ -39,11 +38,18 @@ public class GroupService {
     public void deleteGroup(Long groupId) throws GroupNotFoundException {
         GroupEntity group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException("Group not found"));
-        // Удаляем группу из всех пользователей, которые в ней состоят
         for (UserEntity user : group.getUsers()) {
-            user.removeGroup(group);  // Убираем эту группу из всех пользователей
+            user.removeGroup(group);
         }
-        // Удаляем группу из базы данных
         groupRepository.delete(group);
+    }
+
+    public void updateGroup(Long id, GroupEntity updatedGroup) throws GroupNotFoundException {
+        GroupEntity existingGroup = groupRepository.findById(id)
+                .orElseThrow(() -> new GroupNotFoundException("Group with this ID does not exist!!!"));
+
+        existingGroup.setName(updatedGroup.getName());
+
+        groupRepository.save(existingGroup);
     }
 }

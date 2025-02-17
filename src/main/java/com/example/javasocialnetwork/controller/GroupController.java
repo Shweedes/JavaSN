@@ -7,13 +7,7 @@ import com.example.javasocialnetwork.exception.GroupNotFoundException;
 import com.example.javasocialnetwork.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/groups")
@@ -56,6 +50,18 @@ public class GroupController {
             return ResponseEntity.ok("Group deleted successfully");
         } catch (GroupNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateGroup(@PathVariable Long id, @RequestBody GroupEntity updatedGroup) {
+        try {
+            groupService.updateGroup(id, updatedGroup);
+            return ResponseEntity.ok("Group updated successfully!");
+        } catch (GroupNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error updating group.");
         }
     }
 }
