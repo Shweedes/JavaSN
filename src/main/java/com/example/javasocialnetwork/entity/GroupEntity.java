@@ -24,7 +24,7 @@ public class GroupEntity {
     private Set<UserEntity> users = new HashSet<>();
 
     public GroupEntity() {
-         //constructor
+        // constructor
     }
 
     public Long getId() {

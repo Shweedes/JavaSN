@@ -1,6 +1,5 @@
 package com.example.javasocialnetwork.controller;
 
-
 import com.example.javasocialnetwork.entity.GroupEntity;
 import com.example.javasocialnetwork.exception.GroupAlreadyExistException;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/groups")
 public class GroupController {
-
     private final GroupService groupService;
 
     @Autowired

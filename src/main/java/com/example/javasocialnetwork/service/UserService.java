@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
 
@@ -29,7 +28,7 @@ public class UserService {
         if (userRepository.findByUsername(user.getUserName()) != null) {
             throw new UserAlreadyExistException("User with this name already exists!!!");
         }
-        return  userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public User getOne(Long id) throws UserNotFoundException {
@@ -59,7 +58,7 @@ public class UserService {
             GroupNotFoundException {
         UserEntity user = getUserById(userId);
         GroupEntity group = groupRepository.findById(groupId)
-            .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!!!"));
+                .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!!!"));
 
         user.addGroup(group);
         userRepository.save(user);
@@ -69,8 +68,7 @@ public class UserService {
             GroupNotFoundException {
         UserEntity user = getUserById(userId);
         GroupEntity group = groupRepository.findById(groupId)
-            .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!!!"));
-
+                .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!!!"));
         user.removeGroup(group);
         userRepository.save(user);
     }
@@ -81,7 +79,7 @@ public class UserService {
 
     public void updateUser(Long id, UserEntity updatedUser) throws UserNotFoundException {
         UserEntity existingUser = userRepository.findById(id)
-            .orElseThrow(() -> new UserNotFoundException("User with this ID not exist!!!"));
+                .orElseThrow(() -> new UserNotFoundException("User with this ID not exist!!!"));
 
         existingUser.setUserName(updatedUser.getUserName());
         existingUser.setPassword(updatedUser.getPassword());

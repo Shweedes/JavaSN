@@ -6,7 +6,7 @@ public class User {
     private Long id;
     private String username;
 
-    //конвертор, статичная функция, чтобы мы могли обращаться к ней без создания экземпляра класса
+    // конвертор, статичная функция, чтобы мы могли обращаться к ней без создания экземпляра класса
     public static User toModel(UserEntity entity) {
         User model = new User();
         model.setId(entity.getId());

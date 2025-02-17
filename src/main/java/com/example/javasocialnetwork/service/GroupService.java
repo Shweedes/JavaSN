@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class GroupService {
-
     private final GroupRepository groupRepository;
 
     @Autowired
@@ -46,8 +45,7 @@ public class GroupService {
 
     public void updateGroup(Long id, GroupEntity updatedGroup) throws GroupNotFoundException {
         GroupEntity existingGroup = groupRepository.findById(id)
-            .orElseThrow(() -> new GroupNotFoundException("Group with this ID does not exist!!!"));
-
+                .orElseThrow(() -> new GroupNotFoundException("Group with this ID does not exist!!!"));
         existingGroup.setName(updatedGroup.getName());
 
         groupRepository.save(existingGroup);
