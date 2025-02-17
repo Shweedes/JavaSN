@@ -1,7 +1,13 @@
 package com.example.javasocialnetwork.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +24,7 @@ public class GroupEntity {
     private Set<UserEntity> users = new HashSet<>();
 
     public GroupEntity() {
-        //constructor
+         //constructor
     }
 
     public Long getId() {

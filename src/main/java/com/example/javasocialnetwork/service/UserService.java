@@ -8,10 +8,10 @@ import com.example.javasocialnetwork.exception.UserNotFoundException;
 import com.example.javasocialnetwork.model.User;
 import com.example.javasocialnetwork.repository.GroupRepository;
 import com.example.javasocialnetwork.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
@@ -32,7 +32,7 @@ public class UserService {
         return  userRepository.save(user);
     }
 
-    public User getOne(Long id) throws UserNotFoundException{
+    public User getOne(Long id) throws UserNotFoundException {
         Optional<UserEntity> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
             return User.toModel(optionalUser.get());
@@ -56,19 +56,21 @@ public class UserService {
         }
     }
 
-    public void addUserToGroup(Long userId, Long groupId) throws UserNotFoundException, GroupNotFoundException {
+    public void addUserToGroup(Long userId, Long groupId) throws UserNotFoundException,
+            GroupNotFoundException {
         UserEntity user = getUserById(userId);
         GroupEntity group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group with this id does not exist!!!"));
+            .orElseThrow(() -> new GroupNotFoundException("Group with this id does not exist!!!"));
 
         user.addGroup(group);
         userRepository.save(user);
     }
 
-    public void removeUserFromGroup(Long userId, Long groupId) throws UserNotFoundException, GroupNotFoundException {
+    public void removeUserFromGroup(Long userId, Long groupId) throws UserNotFoundException,
+            GroupNotFoundException {
         UserEntity user = getUserById(userId);
         GroupEntity group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group with this id does not exist!!!"));
+            .orElseThrow(() -> new GroupNotFoundException("Group with this id does not exist!!!"));
 
         user.removeGroup(group);
         userRepository.save(user);

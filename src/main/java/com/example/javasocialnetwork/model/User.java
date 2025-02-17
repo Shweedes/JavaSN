@@ -7,7 +7,7 @@ public class User {
     private String username;
 
     //конвертор, статичная функция, чтобы мы могли обращаться к ней без создания экземпляра класса
-    public static User toModel (UserEntity entity) {
+    public static User toModel(UserEntity entity) {
         User model = new User();
         model.setId(entity.getId());
         model.setUsername(entity.getUserName());
