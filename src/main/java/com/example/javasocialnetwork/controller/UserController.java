@@ -48,7 +48,6 @@ public class UserController {
             User user = userService.getOne(id);
             return ResponseEntity.ok(user);
         } catch (UserNotFoundException e) {
-            // Если пользователь не найден, возвращаем ошибку 404 Not Found
             return ResponseEntity.notFound().build();
         }
     }
@@ -59,7 +58,6 @@ public class UserController {
             User user = userService.getOne(id);
             return ResponseEntity.ok(user);
         } catch (UserNotFoundException e) {
-            // Если пользователь не найден, возвращаем ошибку 404 Not Found
             return ResponseEntity.notFound().build();
         }
     }
