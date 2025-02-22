@@ -40,7 +40,10 @@ public class UserService {
         }
     }
 
-    public Long delete(Long id) {
+    public Long delete(Long id) throws UserNotFoundException {
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("User with this id does not exist!!!");
+        }
         userRepository.deleteById(id);
         return id;
     }

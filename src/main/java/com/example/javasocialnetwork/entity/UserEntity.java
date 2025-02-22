@@ -9,7 +9,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -73,5 +76,23 @@ public class UserEntity {
     public void removeGroup(GroupEntity group) {
         groups.remove(group);
         group.getUsers().remove(this);
+    }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PostEntity> posts = new ArrayList<>();
+
+    public List<PostEntity> getPosts() {
+        return posts;
+    }
+
+    public void addPost(PostEntity post) {
+        posts.add(post);
+        post.setUser(this);
+    }
+
+    public void removePost(PostEntity post) {
+        posts.remove(post);
+        post.setUser(null);
     }
 }

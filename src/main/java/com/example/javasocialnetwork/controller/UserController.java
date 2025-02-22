@@ -67,6 +67,8 @@ public class UserController {
         try {
             userService.delete(id);
             return ResponseEntity.ok("User deleted successfully");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error");
         }
@@ -79,7 +81,7 @@ public class UserController {
             userService.addUserToGroup(userId, groupId);
             return ResponseEntity.ok("User added to group!");
         } catch (UserNotFoundException | GroupNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -90,7 +92,7 @@ public class UserController {
             userService.removeUserFromGroup(userId, groupId);
             return ResponseEntity.ok("User removed from group!");
         } catch (UserNotFoundException | GroupNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 

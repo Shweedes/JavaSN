@@ -53,7 +53,7 @@ public class GroupController {
             groupService.deleteGroup(id);
             return ResponseEntity.ok("Group deleted successfully");
         } catch (GroupNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 
