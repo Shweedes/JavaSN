@@ -5,7 +5,7 @@ import com.example.javasocialnetwork.entity.UserEntity;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
 import com.example.javasocialnetwork.exception.UserAlreadyExistException;
 import com.example.javasocialnetwork.exception.UserNotFoundException;
-import com.example.javasocialnetwork.model.User;
+import com.example.javasocialnetwork.model.UserWithPostsAndGroups;
 import com.example.javasocialnetwork.repository.GroupRepository;
 import com.example.javasocialnetwork.repository.UserRepository;
 import java.util.Optional;
@@ -31,13 +31,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User getOne(Long id) throws UserNotFoundException {
-        Optional<UserEntity> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            return User.toModel(optionalUser.get());
-        } else {
-            throw new UserNotFoundException("User with this id not exist!!!");
-        }
+    public UserWithPostsAndGroups getOne(Long id) throws UserNotFoundException {
+        UserEntity user = userRepository.findWithPostsAndGroupsById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with this id not exist!!!"));
+        return UserWithPostsAndGroups.toModel(user);
     }
 
     public Long delete(Long id) throws UserNotFoundException {

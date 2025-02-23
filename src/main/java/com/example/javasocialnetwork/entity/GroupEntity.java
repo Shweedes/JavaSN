@@ -18,7 +18,7 @@ public class GroupEntity {
     private Long id;
     private String name;
 
-    @ManyToMany(mappedBy = "groups", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+    @ManyToMany(mappedBy = "groups", cascade = { CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<UserEntity> users = new HashSet<>();

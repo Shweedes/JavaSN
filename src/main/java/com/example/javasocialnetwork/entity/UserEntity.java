@@ -24,7 +24,7 @@ public class UserEntity {
     private String username;
     private String password;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_groups",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -78,7 +78,8 @@ public class UserEntity {
         group.getUsers().remove(this);
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,
+    @OneToMany(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REMOVE, CascadeType.REFRESH },
             orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PostEntity> posts = new ArrayList<>();
 

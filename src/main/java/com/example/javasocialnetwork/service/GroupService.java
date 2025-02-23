@@ -4,8 +4,8 @@ import com.example.javasocialnetwork.entity.GroupEntity;
 import com.example.javasocialnetwork.entity.UserEntity;
 import com.example.javasocialnetwork.exception.GroupAlreadyExistException;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
+import com.example.javasocialnetwork.model.GroupWithUsers;
 import com.example.javasocialnetwork.repository.GroupRepository;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +25,10 @@ public class GroupService {
         return groupRepository.save(group);
     }
 
-    public GroupEntity getOne(Long id) throws GroupNotFoundException {
-        Optional<GroupEntity> optionalGroup = groupRepository.findById(id);
-        if (optionalGroup.isPresent()) {
-            return optionalGroup.get();
-        } else {
-            throw new GroupNotFoundException("User with this id does not exist!!!");
-        }
+    public GroupWithUsers getOne(Long id) throws GroupNotFoundException {
+        GroupEntity group = groupRepository.findWithUsersById(id)
+                .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!"));
+        return GroupWithUsers.toModel(group);
     }
 
     public void deleteGroup(Long groupId) throws GroupNotFoundException {

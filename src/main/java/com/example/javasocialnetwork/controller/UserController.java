@@ -5,7 +5,7 @@ import com.example.javasocialnetwork.entity.UserEntity;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
 import com.example.javasocialnetwork.exception.UserAlreadyExistException;
 import com.example.javasocialnetwork.exception.UserNotFoundException;
-import com.example.javasocialnetwork.model.User;
+import com.example.javasocialnetwork.model.UserWithPostsAndGroups;
 import com.example.javasocialnetwork.service.UserService;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +43,9 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<User> getOneUserQuery(@RequestParam Long id) {
+    public ResponseEntity<UserWithPostsAndGroups> getOneUserQuery(@RequestParam Long id) {
         try {
-            User user = userService.getOne(id);
+            UserWithPostsAndGroups user = userService.getOne(id);
             return ResponseEntity.ok(user);
         } catch (UserNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -53,9 +53,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getOneUserPath(@PathVariable Long id) {
+    public ResponseEntity<UserWithPostsAndGroups> getOneUserPath(@PathVariable Long id) {
         try {
-            User user = userService.getOne(id);
+            UserWithPostsAndGroups user = userService.getOne(id);
             return ResponseEntity.ok(user);
         } catch (UserNotFoundException e) {
             return ResponseEntity.notFound().build();

@@ -3,6 +3,7 @@ package com.example.javasocialnetwork.controller;
 import com.example.javasocialnetwork.entity.GroupEntity;
 import com.example.javasocialnetwork.exception.GroupAlreadyExistException;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
+import com.example.javasocialnetwork.model.GroupWithUsers;
 import com.example.javasocialnetwork.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,9 +39,9 @@ public class GroupController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GroupEntity> getOneGroupPath(@PathVariable Long id) {
+    public ResponseEntity<GroupWithUsers> getOneGroupPath(@PathVariable Long id) {
         try {
-            GroupEntity group = groupService.getOne(id);
+            GroupWithUsers group = groupService.getOne(id);
             return ResponseEntity.ok(group);
         } catch (GroupNotFoundException e) {
             return ResponseEntity.notFound().build();
