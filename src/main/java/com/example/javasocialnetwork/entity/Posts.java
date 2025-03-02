@@ -8,9 +8,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
-public class PostEntity {
+@Table(name = "post_entity")
+public class Posts {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,11 +22,11 @@ public class PostEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private UserEntity user;
+    private Users user;
 
-    public PostEntity() {}
+    public Posts() {}
 
-    public PostEntity(String content, UserEntity user) {
+    public Posts(String content, Users user) {
         this.content = content;
         this.user = user;
     }
@@ -41,11 +43,11 @@ public class PostEntity {
         this.content = content;
     }
 
-    public UserEntity getUser() {
+    public Users getUser() {
         return user;
     }
 
-    public void setUser(UserEntity user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 }

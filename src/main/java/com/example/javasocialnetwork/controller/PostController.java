@@ -1,9 +1,9 @@
 package com.example.javasocialnetwork.controller;
 
-import com.example.javasocialnetwork.entity.PostEntity;
+import com.example.javasocialnetwork.dto.PostDto;
+import com.example.javasocialnetwork.entity.Posts;
 import com.example.javasocialnetwork.exception.PostNotFoundException;
 import com.example.javasocialnetwork.exception.UserNotFoundException;
-import com.example.javasocialnetwork.model.Post;
 import com.example.javasocialnetwork.service.PostService;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class PostController {
 
     @PostMapping("/user/{userId}")
     public ResponseEntity<String> createPost(@PathVariable Long userId,
-                                        @RequestBody Post post) {
+                                        @RequestBody PostDto post) {
         try {
             postService.createPost(userId, post.getContent());
             return ResponseEntity.ok("Post add!!!");
@@ -39,7 +39,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PostEntity>> getUserPosts(@PathVariable Long userId) {
+    public ResponseEntity<List<Posts>> getUserPosts(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(postService.getUserPosts(userId));
         } catch (PostNotFoundException e) {
@@ -58,7 +58,7 @@ public class PostController {
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity<String> updatePost(@PathVariable Long postId, @RequestBody Post post) {
+    public ResponseEntity<String> updatePost(@PathVariable Long postId, @RequestBody PostDto post) {
         try {
             postService.updatePost(postId, post.getContent());
             return ResponseEntity.ok("Post updated successfully");

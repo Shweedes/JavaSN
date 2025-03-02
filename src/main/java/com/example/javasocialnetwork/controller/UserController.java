@@ -1,12 +1,13 @@
 package com.example.javasocialnetwork.controller;
 
-import com.example.javasocialnetwork.entity.GroupEntity;
-import com.example.javasocialnetwork.entity.UserEntity;
+import com.example.javasocialnetwork.dto.UserWithPostsAndGroupsDto;
+import com.example.javasocialnetwork.entity.Groups;
+import com.example.javasocialnetwork.entity.Users;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
 import com.example.javasocialnetwork.exception.UserAlreadyExistException;
 import com.example.javasocialnetwork.exception.UserNotFoundException;
-import com.example.javasocialnetwork.model.UserWithPostsAndGroups;
 import com.example.javasocialnetwork.service.UserService;
+import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> registrationUser(@RequestBody UserEntity user) {
+    public ResponseEntity<String> registrationUser(@RequestBody Users user) {
         try {
             userService.registration(user);
             return ResponseEntity.ok("User add!!!");
@@ -42,20 +43,20 @@ public class UserController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<UserWithPostsAndGroups> getOneUserQuery(@RequestParam Long id) {
+    @GetMapping("/search")
+    public ResponseEntity<List<UserWithPostsAndGroupsDto>> searchUsers(@RequestParam String username) {
         try {
-            UserWithPostsAndGroups user = userService.getOne(id);
-            return ResponseEntity.ok(user);
-        } catch (UserNotFoundException e) {
+            List<UserWithPostsAndGroupsDto> users = userService.searchUsersByUsername(username);
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserWithPostsAndGroups> getOneUserPath(@PathVariable Long id) {
+    public ResponseEntity<UserWithPostsAndGroupsDto> getOneUserPath(@PathVariable Long id) {
         try {
-            UserWithPostsAndGroups user = userService.getOne(id);
+            UserWithPostsAndGroupsDto user = userService.getOne(id);
             return ResponseEntity.ok(user);
         } catch (UserNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -97,7 +98,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/groups")
-    public ResponseEntity<Set<GroupEntity>> getUserGroups(@PathVariable Long userId) {
+    public ResponseEntity<Set<Groups>> getUserGroups(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(userService.getUserGroups(userId));
         } catch (UserNotFoundException e) {
@@ -107,7 +108,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateUser(@PathVariable Long id,
-                                             @RequestBody UserEntity updatedUser) {
+                                             @RequestBody Users updatedUser) {
         try {
             userService.updateUser(id, updatedUser);
             return ResponseEntity.ok("User updated successfully!");

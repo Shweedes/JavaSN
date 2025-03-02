@@ -8,11 +8,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-public class GroupEntity {
+@Table(name = "group_entity")
+public class Groups {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,9 +23,9 @@ public class GroupEntity {
     @ManyToMany(mappedBy = "groups", cascade = { CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<UserEntity> users = new HashSet<>();
+    private Set<Users> users = new HashSet<>();
 
-    public GroupEntity() {
+    public Groups() {
         // constructor
     }
 
@@ -43,11 +45,11 @@ public class GroupEntity {
         this.name = name;
     }
 
-    public Set<UserEntity> getUsers() {
+    public Set<Users> getUsers() {
         return users;
     }
 
-    public void setUsers(Set<UserEntity> users) {
+    public void setUsers(Set<Users> users) {
         this.users = users;
     }
 }

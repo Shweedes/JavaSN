@@ -1,13 +1,13 @@
-package com.example.javasocialnetwork.model;
+package com.example.javasocialnetwork.dto;
 
-import com.example.javasocialnetwork.entity.PostEntity;
+import com.example.javasocialnetwork.entity.Posts;
 
-public class Post {
+public class PostDto {
     private Long id;
     private String content;
 
-    public static Post toModel(PostEntity entity) {
-        Post post = new Post();
+    public static PostDto toModel(Posts entity) {
+        PostDto post = new PostDto();
         post.setId(entity.getId());
         post.setContent(entity.getContent());
         return post;

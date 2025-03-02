@@ -1,27 +1,27 @@
-package com.example.javasocialnetwork.model;
+package com.example.javasocialnetwork.dto;
 
-import com.example.javasocialnetwork.entity.UserEntity;
+import com.example.javasocialnetwork.entity.Users;
 import java.util.List;
 
-public class UserWithPostsAndGroups {
+public class UserWithPostsAndGroupsDto {
     private Long id;
     private String username;
-    private List<Post> posts; // Список постов с id и content
-    private List<Group> groups; // Список постов с id и content
+    private List<PostDto> posts; // Список постов с id и content
+    private List<GroupDto> groups; // Список постов с id и content
 
-    public static UserWithPostsAndGroups toModel(UserEntity entity) {
-        UserWithPostsAndGroups model = new UserWithPostsAndGroups();
+    public static UserWithPostsAndGroupsDto toModel(Users entity) {
+        UserWithPostsAndGroupsDto model = new UserWithPostsAndGroupsDto();
         model.setId(entity.getId());
         model.setUsername(entity.getUserName());
 
         // Преобразуем список PostEntity → Post
         model.setPosts(entity.getPosts().stream()
-                .map(Post::toModel)
+                .map(PostDto::toModel)
                 .toList());
 
         // Преобразуем список GroupEntity → Group
         model.setGroups(entity.getGroups().stream()
-                .map(Group::toModel)
+                .map(GroupDto::toModel)
                 .toList());
         return model;
     }
@@ -42,19 +42,19 @@ public class UserWithPostsAndGroups {
         this.username = username;
     }
 
-    public List<Post> getPosts() {
+    public List<PostDto> getPosts() {
         return posts;
     }
 
-    public void setPosts(List<Post> posts) {
+    public void setPosts(List<PostDto> posts) {
         this.posts = posts;
     }
 
-    public List<Group> getGroups() {
+    public List<GroupDto> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<Group> groups) {
+    public void setGroups(List<GroupDto> groups) {
         this.groups = groups;
     }
 }

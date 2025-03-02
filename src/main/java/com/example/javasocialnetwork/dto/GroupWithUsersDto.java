@@ -1,22 +1,22 @@
-package com.example.javasocialnetwork.model;
+package com.example.javasocialnetwork.dto;
 
-import com.example.javasocialnetwork.entity.GroupEntity;
+import com.example.javasocialnetwork.entity.Groups;
 import java.util.List;
 
-public class GroupWithUsers {
+public class GroupWithUsersDto {
     private Long id;
     private String name;
 
-    private List<User> users;
+    private List<UserDto> users;
 
-    public static GroupWithUsers toModel(GroupEntity entity) {
-        GroupWithUsers model = new GroupWithUsers();
+    public static GroupWithUsersDto toModel(Groups entity) {
+        GroupWithUsersDto model = new GroupWithUsersDto();
         model.setId(entity.getId());
         model.setName(entity.getName());
 
         // Преобразуем список UserEntity → User
         model.setUsers(entity.getUsers().stream()
-                .map(User::toModel)
+                .map(UserDto::toModel)
                 .toList());
         return model;
     }
@@ -37,11 +37,11 @@ public class GroupWithUsers {
         this.name = name;
     }
 
-    public List<User> getUsers() {
+    public List<UserDto> getUsers() {
         return users;
     }
 
-    public void setUsers(List<User> users) {
+    public void setUsers(List<UserDto> users) {
         this.users = users;
     }
 }

@@ -1,13 +1,13 @@
-package com.example.javasocialnetwork.model;
+package com.example.javasocialnetwork.dto;
 
-import com.example.javasocialnetwork.entity.GroupEntity;
+import com.example.javasocialnetwork.entity.Groups;
 
-public class Group {
+public class GroupDto {
     private Long id;
     private String name;
 
-    public static Group toModel(GroupEntity entity) {
-        Group model = new Group();
+    public static GroupDto toModel(Groups entity) {
+        GroupDto model = new GroupDto();
         model.setId(entity.getId());
         model.setName(entity.getName());
 

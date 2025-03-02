@@ -10,13 +10,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Entity
-public class UserEntity {
+@Table(name = "user_entity")
+public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,9 +32,9 @@ public class UserEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
-    private Set<GroupEntity> groups = new HashSet<>();
+    private Set<Groups> groups = new HashSet<>();
 
-    public UserEntity() {
+    public Users() {
         // constructor
     }
 
@@ -60,20 +62,20 @@ public class UserEntity {
         this.password = password;
     }
 
-    public Set<GroupEntity> getGroups() {
+    public Set<Groups> getGroups() {
         return groups;
     }
 
-    public void setGroups(Set<GroupEntity> groups) {
+    public void setGroups(Set<Groups> groups) {
         this.groups = groups;
     }
 
-    public void addGroup(GroupEntity group) {
+    public void addGroup(Groups group) {
         groups.add(group);
         group.getUsers().add(this);
     }
 
-    public void removeGroup(GroupEntity group) {
+    public void removeGroup(Groups group) {
         groups.remove(group);
         group.getUsers().remove(this);
     }
@@ -81,18 +83,18 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REMOVE, CascadeType.REFRESH },
             orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PostEntity> posts = new ArrayList<>();
+    private List<Posts> posts = new ArrayList<>();
 
-    public List<PostEntity> getPosts() {
+    public List<Posts> getPosts() {
         return posts;
     }
 
-    public void addPost(PostEntity post) {
+    public void addPost(Posts post) {
         posts.add(post);
         post.setUser(this);
     }
 
-    public void removePost(PostEntity post) {
+    public void removePost(Posts post) {
         posts.remove(post);
         post.setUser(null);
     }

@@ -1,9 +1,9 @@
 package com.example.javasocialnetwork.controller;
 
-import com.example.javasocialnetwork.entity.GroupEntity;
+import com.example.javasocialnetwork.dto.GroupWithUsersDto;
+import com.example.javasocialnetwork.entity.Groups;
 import com.example.javasocialnetwork.exception.GroupAlreadyExistException;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
-import com.example.javasocialnetwork.model.GroupWithUsers;
 import com.example.javasocialnetwork.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class GroupController {
     }
 
     @PostMapping
-    public ResponseEntity<String> registrationGroup(@RequestBody GroupEntity group) {
+    public ResponseEntity<String> registrationGroup(@RequestBody Groups group) {
         try {
             groupService.registration(group);
             return ResponseEntity.ok().body("Group add!!!");
@@ -39,9 +39,9 @@ public class GroupController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GroupWithUsers> getOneGroupPath(@PathVariable Long id) {
+    public ResponseEntity<GroupWithUsersDto> getOneGroupPath(@PathVariable Long id) {
         try {
-            GroupWithUsers group = groupService.getOne(id);
+            GroupWithUsersDto group = groupService.getOne(id);
             return ResponseEntity.ok(group);
         } catch (GroupNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -60,7 +60,7 @@ public class GroupController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateGroup(@PathVariable Long id,
-                                              @RequestBody GroupEntity updatedGroup) {
+                                              @RequestBody Groups updatedGroup) {
         try {
             groupService.updateGroup(id, updatedGroup);
             return ResponseEntity.ok("Group updated successfully!");
