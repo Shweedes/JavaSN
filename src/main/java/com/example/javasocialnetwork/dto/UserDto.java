@@ -1,12 +1,12 @@
 package com.example.javasocialnetwork.dto;
 
-import com.example.javasocialnetwork.entity.Users;
+import com.example.javasocialnetwork.entity.User;
 
 public class UserDto {
     private Long id;
     private String username;
 
-    public static UserDto toModel(Users entity) {
+    public static UserDto toModel(User entity) {
         UserDto model = new UserDto();
         model.setId(entity.getId());
         model.setUsername(entity.getUserName());

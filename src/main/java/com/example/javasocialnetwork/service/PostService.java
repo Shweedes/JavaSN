@@ -1,7 +1,7 @@
 package com.example.javasocialnetwork.service;
 
-import com.example.javasocialnetwork.entity.Posts;
-import com.example.javasocialnetwork.entity.Users;
+import com.example.javasocialnetwork.entity.Post;
+import com.example.javasocialnetwork.entity.User;
 import com.example.javasocialnetwork.exception.PostNotFoundException;
 import com.example.javasocialnetwork.exception.UserNotFoundException;
 import com.example.javasocialnetwork.repository.PostRepository;
@@ -19,16 +19,16 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    public Posts createPost(Long userId, String content) throws UserNotFoundException {
-        Users user = userRepository.findById(userId)
+    public Post createPost(Long userId, String content) throws UserNotFoundException {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        Posts post = new Posts(content, user);
+        Post post = new Post(content, user);
         return postRepository.save(post);
     }
 
-    public List<Posts> getUserPosts(Long userId) throws PostNotFoundException {
-        List<Posts> posts = postRepository.findByUserId(userId);
+    public List<Post> getUserPosts(Long userId) throws PostNotFoundException {
+        List<Post> posts = postRepository.findByUserId(userId);
         if (posts.isEmpty()) {
             throw new PostNotFoundException("No posts found for user with id: " + userId);
         }
@@ -43,7 +43,7 @@ public class PostService {
     }
 
     public void updatePost(Long postId, String content) throws PostNotFoundException {
-        Posts post = postRepository.findById(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post with this id does not exist!!!"));
         post.setContent(content);
         postRepository.save(post);

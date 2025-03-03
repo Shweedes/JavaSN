@@ -1,6 +1,6 @@
 package com.example.javasocialnetwork.dto;
 
-import com.example.javasocialnetwork.entity.Groups;
+import com.example.javasocialnetwork.entity.Group;
 import java.util.List;
 
 public class GroupWithUsersDto {
@@ -9,7 +9,7 @@ public class GroupWithUsersDto {
 
     private List<UserDto> users;
 
-    public static GroupWithUsersDto toModel(Groups entity) {
+    public static GroupWithUsersDto toModel(Group entity) {
         GroupWithUsersDto model = new GroupWithUsersDto();
         model.setId(entity.getId());
         model.setName(entity.getName());

@@ -13,19 +13,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "group_entity")
-public class Groups {
+@Table(name = "groups")
+public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
-    @ManyToMany(mappedBy = "groups", cascade = { CascadeType.PERSIST, CascadeType.MERGE},
+    @ManyToMany(mappedBy = "groups", cascade = { CascadeType.PERSIST, CascadeType.MERGE },
             fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<Users> users = new HashSet<>();
+    private Set<User> users = new HashSet<>();
 
-    public Groups() {
+    public Group() {
         // constructor
     }
 
@@ -45,11 +45,11 @@ public class Groups {
         this.name = name;
     }
 
-    public Set<Users> getUsers() {
+    public Set<User> getUsers() {
         return users;
     }
 
-    public void setUsers(Set<Users> users) {
+    public void setUsers(Set<User> users) {
         this.users = users;
     }
 }

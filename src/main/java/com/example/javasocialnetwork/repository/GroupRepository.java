@@ -1,15 +1,15 @@
 package com.example.javasocialnetwork.repository;
 
-import com.example.javasocialnetwork.entity.Groups;
+import com.example.javasocialnetwork.entity.Group;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GroupRepository extends JpaRepository<Groups, Long> {
-    Groups findByName(String name);
+public interface GroupRepository extends JpaRepository<Group, Long> {
+    Group findByName(String name);
 
     @EntityGraph(attributePaths = "users")
-    Optional<Groups> findWithUsersById(Long id);
+    Optional<Group> findWithUsersById(Long id);
 }

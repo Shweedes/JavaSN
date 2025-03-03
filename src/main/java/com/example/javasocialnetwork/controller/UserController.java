@@ -1,8 +1,8 @@
 package com.example.javasocialnetwork.controller;
 
 import com.example.javasocialnetwork.dto.UserWithPostsAndGroupsDto;
-import com.example.javasocialnetwork.entity.Groups;
-import com.example.javasocialnetwork.entity.Users;
+import com.example.javasocialnetwork.entity.Group;
+import com.example.javasocialnetwork.entity.User;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
 import com.example.javasocialnetwork.exception.UserAlreadyExistException;
 import com.example.javasocialnetwork.exception.UserNotFoundException;
@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> registrationUser(@RequestBody Users user) {
+    public ResponseEntity<String> registrationUser(@RequestBody User user) {
         try {
             userService.registration(user);
             return ResponseEntity.ok("User add!!!");
@@ -98,7 +98,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/groups")
-    public ResponseEntity<Set<Groups>> getUserGroups(@PathVariable Long userId) {
+    public ResponseEntity<Set<Group>> getUserGroups(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(userService.getUserGroups(userId));
         } catch (UserNotFoundException e) {
@@ -108,7 +108,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateUser(@PathVariable Long id,
-                                             @RequestBody Users updatedUser) {
+                                             @RequestBody User updatedUser) {
         try {
             userService.updateUser(id, updatedUser);
             return ResponseEntity.ok("User updated successfully!");

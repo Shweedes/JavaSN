@@ -1,8 +1,8 @@
 package com.example.javasocialnetwork.service;
 
 import com.example.javasocialnetwork.dto.UserWithPostsAndGroupsDto;
-import com.example.javasocialnetwork.entity.Groups;
-import com.example.javasocialnetwork.entity.Users;
+import com.example.javasocialnetwork.entity.Group;
+import com.example.javasocialnetwork.entity.User;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
 import com.example.javasocialnetwork.exception.UserAlreadyExistException;
 import com.example.javasocialnetwork.exception.UserNotFoundException;
@@ -26,11 +26,11 @@ public class UserService {
     }
 
     public List<UserWithPostsAndGroupsDto> searchUsersByUsername(String username) {
-        List<Users> users = userRepository.findByUsernameContainingIgnoreCase(username);
+        List<User> users = userRepository.findByUsernameContainingIgnoreCase(username);
         return users.stream().map(UserWithPostsAndGroupsDto::toModel).toList();
     }
 
-    public Users registration(Users user) throws UserAlreadyExistException {
+    public User registration(User user) throws UserAlreadyExistException {
         if (userRepository.findByUsername(user.getUserName()) != null) {
             throw new UserAlreadyExistException("User with this name already exists!!!");
         }
@@ -38,7 +38,7 @@ public class UserService {
     }
 
     public UserWithPostsAndGroupsDto getOne(Long id) throws UserNotFoundException {
-        Users user = userRepository.findWithPostsAndGroupsById(id)
+        User user = userRepository.findWithPostsAndGroupsById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with this id not exist!!!"));
         return UserWithPostsAndGroupsDto.toModel(user);
     }
@@ -51,8 +51,8 @@ public class UserService {
         return id;
     }
 
-    public Users getUserById(Long id) throws UserNotFoundException {
-        Optional<Users> optionalUser = userRepository.findById(id);
+    public User getUserById(Long id) throws UserNotFoundException {
+        Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
             return optionalUser.get();
         } else {
@@ -62,8 +62,8 @@ public class UserService {
 
     public void addUserToGroup(Long userId, Long groupId) throws UserNotFoundException,
             GroupNotFoundException {
-        Users user = getUserById(userId);
-        Groups group = groupRepository.findById(groupId)
+        User user = getUserById(userId);
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!!!"));
 
         user.addGroup(group);
@@ -72,19 +72,19 @@ public class UserService {
 
     public void removeUserFromGroup(Long userId, Long groupId) throws UserNotFoundException,
             GroupNotFoundException {
-        Users user = getUserById(userId);
-        Groups group = groupRepository.findById(groupId)
+        User user = getUserById(userId);
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!!!"));
         user.removeGroup(group);
         userRepository.save(user);
     }
 
-    public Set<Groups> getUserGroups(Long userId) throws UserNotFoundException {
+    public Set<Group> getUserGroups(Long userId) throws UserNotFoundException {
         return getUserById(userId).getGroups();
     }
 
-    public void updateUser(Long id, Users updatedUser) throws UserNotFoundException {
-        Users existingUser = userRepository.findById(id)
+    public void updateUser(Long id, User updatedUser) throws UserNotFoundException {
+        User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with this ID not exist!!!"));
 
         existingUser.setUserName(updatedUser.getUserName());

@@ -11,8 +11,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "post_entity")
-public class Posts {
+@Table(name = "posts")
+public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,11 +22,11 @@ public class Posts {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private Users user;
+    private User user;
 
-    public Posts() {}
+    public Post() {}
 
-    public Posts(String content, Users user) {
+    public Post(String content, User user) {
         this.content = content;
         this.user = user;
     }
@@ -43,11 +43,11 @@ public class Posts {
         this.content = content;
     }
 
-    public Users getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(Users user) {
+    public void setUser(User user) {
         this.user = user;
     }
 }

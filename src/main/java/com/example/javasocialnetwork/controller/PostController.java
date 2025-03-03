@@ -1,7 +1,7 @@
 package com.example.javasocialnetwork.controller;
 
 import com.example.javasocialnetwork.dto.PostDto;
-import com.example.javasocialnetwork.entity.Posts;
+import com.example.javasocialnetwork.entity.Post;
 import com.example.javasocialnetwork.exception.PostNotFoundException;
 import com.example.javasocialnetwork.exception.UserNotFoundException;
 import com.example.javasocialnetwork.service.PostService;
@@ -39,7 +39,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Posts>> getUserPosts(@PathVariable Long userId) {
+    public ResponseEntity<List<Post>> getUserPosts(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(postService.getUserPosts(userId));
         } catch (PostNotFoundException e) {

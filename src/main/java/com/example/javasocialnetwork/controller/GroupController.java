@@ -1,7 +1,7 @@
 package com.example.javasocialnetwork.controller;
 
 import com.example.javasocialnetwork.dto.GroupWithUsersDto;
-import com.example.javasocialnetwork.entity.Groups;
+import com.example.javasocialnetwork.entity.Group;
 import com.example.javasocialnetwork.exception.GroupAlreadyExistException;
 import com.example.javasocialnetwork.exception.GroupNotFoundException;
 import com.example.javasocialnetwork.service.GroupService;
@@ -27,7 +27,7 @@ public class GroupController {
     }
 
     @PostMapping
-    public ResponseEntity<String> registrationGroup(@RequestBody Groups group) {
+    public ResponseEntity<String> registrationGroup(@RequestBody Group group) {
         try {
             groupService.registration(group);
             return ResponseEntity.ok().body("Group add!!!");
@@ -60,7 +60,7 @@ public class GroupController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateGroup(@PathVariable Long id,
-                                              @RequestBody Groups updatedGroup) {
+                                              @RequestBody Group updatedGroup) {
         try {
             groupService.updateGroup(id, updatedGroup);
             return ResponseEntity.ok("Group updated successfully!");
