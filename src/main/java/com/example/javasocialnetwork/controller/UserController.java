@@ -43,6 +43,13 @@ public class UserController {
         }
     }
 
+    @GetMapping("/by-post-content")
+    public ResponseEntity<List<UserWithPostsAndGroupsDto>> getUsersByPostContent(
+            @RequestParam String content) {
+        List<UserWithPostsAndGroupsDto> users = userService.findByPostContent(content);
+        return ResponseEntity.ok(users);
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<UserWithPostsAndGroupsDto>> searchUsers(@RequestParam String username) {
         try {

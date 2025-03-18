@@ -1,5 +1,6 @@
 package com.example.javasocialnetwork.service;
 
+import com.example.javasocialnetwork.cache.CacheService;
 import com.example.javasocialnetwork.entity.Post;
 import com.example.javasocialnetwork.entity.User;
 import com.example.javasocialnetwork.exception.PostNotFoundException;
@@ -13,10 +14,14 @@ import org.springframework.stereotype.Service;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final CacheService cacheService;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository) {
+    public PostService(PostRepository postRepository,
+                       UserRepository userRepository,
+                       CacheService cacheService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.cacheService = cacheService;
     }
 
     public Post createPost(Long userId, String content) throws UserNotFoundException {
@@ -24,6 +29,9 @@ public class PostService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         Post post = new Post(content, user);
+
+        cacheService.invalidateUserCache();
+
         return postRepository.save(post);
     }
 
@@ -40,6 +48,7 @@ public class PostService {
             throw new PostNotFoundException("Post with id " + postId + " not found.");
         }
         postRepository.deleteById(postId);
+        cacheService.invalidateUserCache();
     }
 
     public void updatePost(Long postId, String content) throws PostNotFoundException {
@@ -47,5 +56,7 @@ public class PostService {
                 .orElseThrow(() -> new PostNotFoundException("Post with this id does not exist!!!"));
         post.setContent(content);
         postRepository.save(post);
+
+        cacheService.invalidateUserCache();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.javasocialnetwork.service;
 
+import com.example.javasocialnetwork.cache.CacheService;
 import com.example.javasocialnetwork.dto.GroupWithUsersDto;
 import com.example.javasocialnetwork.entity.Group;
 import com.example.javasocialnetwork.entity.User;
@@ -17,17 +18,23 @@ import org.springframework.stereotype.Service;
 public class GroupService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final CacheService cacheService;
 
     @Autowired
-    public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
+    public GroupService(GroupRepository groupRepository,
+                        UserRepository userRepository,
+                        CacheService cacheService) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
+        this.cacheService = cacheService;
     }
 
     public Group registration(Group group) throws GroupAlreadyExistException {
         if (groupRepository.findByName(group.getName()) != null) {
             throw new GroupAlreadyExistException("Group with this name already exists!!!");
         }
+
+        cacheService.invalidateUserCache();
         return groupRepository.save(group);
     }
 
@@ -50,6 +57,7 @@ public class GroupService {
         }
 
         groupRepository.delete(group);
+        cacheService.invalidateUserCache();
     }
 
     public void updateGroup(Long id, Group updatedGroup) throws GroupNotFoundException {
@@ -58,5 +66,7 @@ public class GroupService {
         existingGroup.setName(updatedGroup.getName());
 
         groupRepository.save(existingGroup);
+
+        cacheService.invalidateUserCache();
     }
 }
