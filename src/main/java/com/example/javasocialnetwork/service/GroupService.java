@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class GroupService {
+    private static final String GROUP_NOT_FOUND = "Group not found";
+    private static final String GROUP_ID = "groupId";
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final CacheService cacheService;
@@ -40,16 +42,16 @@ public class GroupService {
 
     public GroupWithUsersDto getOne(Long id) {
         Group group = groupRepository.findWithUsersById(id)
-                .orElseThrow(() -> new GroupNotFoundException("Group not found")
-                        .addDetail("groupId", id));
+                .orElseThrow(() -> new GroupNotFoundException(GROUP_NOT_FOUND)
+                        .addDetail(GROUP_ID, id));
         return GroupWithUsersDto.toModel(group);
     }
 
     @Transactional
     public void deleteGroup(Long groupId) {
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group not found")
-                        .addDetail("groupId", groupId));
+                .orElseThrow(() -> new GroupNotFoundException(GROUP_NOT_FOUND)
+                        .addDetail(GROUP_ID, groupId));
 
         Set<User> users = new HashSet<>(group.getUsers());
         users.forEach(user -> {
@@ -63,8 +65,8 @@ public class GroupService {
 
     public void updateGroup(Long id, Group updatedGroup) {
         Group existingGroup = groupRepository.findById(id)
-                .orElseThrow(() -> new GroupNotFoundException("Group not found")
-                        .addDetail("groupId", id));
+                .orElseThrow(() -> new GroupNotFoundException(GROUP_NOT_FOUND)
+                        .addDetail(GROUP_ID, id));
 
         existingGroup.setName(updatedGroup.getName());
         groupRepository.save(existingGroup);

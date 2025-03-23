@@ -22,7 +22,9 @@ public class ExceptionLoggingAspect {
         String methodName = joinPoint.getSignature().toShortString();
         Object[] args = joinPoint.getArgs();
 
-        logger.error("Exception in {} with args {}: {}",
-                methodName, Arrays.toString(args), ex.getMessage());
+        if (logger.isErrorEnabled()) {
+            logger.error("Exception in {} with args {}: {}",
+                    methodName, Arrays.toString(args), ex.getMessage());
+        }
     }
 }
