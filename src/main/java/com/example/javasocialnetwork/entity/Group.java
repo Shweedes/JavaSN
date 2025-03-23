@@ -1,6 +1,7 @@
 package com.example.javasocialnetwork.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,14 +18,17 @@ import java.util.Set;
 
 @Entity
 @Table(name = "groups")
+@Schema(description = "Модель группы пользователей")
 public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(hidden = true)
     private Long id;
 
     @NotBlank(message = "Group name is required")
     @Size(min = 3, max = 100, message = "Group name must be between 3 and 100 characters")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Username must contain only letters and numbers")
+    @Schema(description = "Название группы", example = "Admins")
     private String name;
 
     @ManyToMany(mappedBy = "groups", cascade = { CascadeType.PERSIST, CascadeType.MERGE },

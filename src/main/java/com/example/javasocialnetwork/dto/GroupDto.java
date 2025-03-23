@@ -4,6 +4,7 @@ import com.example.javasocialnetwork.entity.Group;
 
 public class GroupDto {
     private Long id;
+
     private String name;
 
     public static GroupDto toModel(Group entity) {

@@ -1,12 +1,17 @@
 package com.example.javasocialnetwork.dto;
 
 import com.example.javasocialnetwork.entity.Group;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.List;
 
+@Schema(description = "DTO группы с участниками")
 public class GroupWithUsersDto {
+    @Schema(description = "Уникальный идентификатор группы", example = "1")
     private Long id;
+    @Schema(description = "Название группы", example = "Разработчики")
     private String name;
-
+    @Schema(description = "Список участников группы")
     private List<UserDto> users;
 
     public static GroupWithUsersDto toModel(Group entity) {

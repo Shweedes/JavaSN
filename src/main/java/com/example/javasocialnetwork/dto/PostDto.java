@@ -1,9 +1,17 @@
 package com.example.javasocialnetwork.dto;
 
 import com.example.javasocialnetwork.entity.Post;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "DTO для создания/обновления поста")
 public class PostDto {
+    @Schema(hidden = true)
     private Long id;
+    @Schema(
+            description = "Содержимое поста",
+            example = "Сегодня прекрасный день для программирования!",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String content;
 
     public static PostDto toModel(Post entity) {

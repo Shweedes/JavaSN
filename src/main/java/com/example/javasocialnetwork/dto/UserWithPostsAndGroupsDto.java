@@ -1,10 +1,14 @@
 package com.example.javasocialnetwork.dto;
 
 import com.example.javasocialnetwork.entity.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
+@Schema(description = "DTO пользователя с постами и группами")
 public class UserWithPostsAndGroupsDto {
+    @Schema(hidden = true)
     private Long id;
+    @Schema(description = "Имя пользователя", example = "John")
     private String username;
     private List<PostDto> posts; // Список постов с id и content
     private List<GroupDto> groups; // Список постов с id и content

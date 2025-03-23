@@ -11,13 +11,18 @@ import com.example.javasocialnetwork.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GroupService {
+    private static final Logger logger = LoggerFactory.getLogger(GroupService.class);
     private static final String GROUP_NOT_FOUND = "Group not found";
     private static final String GROUP_ID = "groupId";
+    private static final String GROUP = "group_";
+    private static final String GROUPS = "groups_";
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final CacheService cacheService;
@@ -31,20 +36,36 @@ public class GroupService {
         this.cacheService = cacheService;
     }
 
+    public GroupWithUsersDto getOne(Long id) {
+        String cacheKey = GROUP + id;
+
+        return (GroupWithUsersDto) cacheService.get(cacheKey)
+                .orElseGet(() -> {
+                    logger.info("[DB] Fetching group from database by id: {}", id);
+
+                    Group group = groupRepository.findWithUsersById(id)
+                            .orElseThrow(() -> new GroupNotFoundException(GROUP_NOT_FOUND)
+                                    .addDetail(GROUP_ID, id));
+
+                    GroupWithUsersDto dto = GroupWithUsersDto.toModel(group);
+                    cacheService.put(cacheKey, dto);
+                    return dto;
+                });
+    }
+
     public Group registration(Group group) {
         if (groupRepository.findByName(group.getName()) != null) {
             throw new GroupAlreadyExistException("Group already exists")
                     .addDetail("groupName", group.getName());
         }
-        cacheService.invalidateUserCache();
-        return groupRepository.save(group);
-    }
 
-    public GroupWithUsersDto getOne(Long id) {
-        Group group = groupRepository.findWithUsersById(id)
-                .orElseThrow(() -> new GroupNotFoundException(GROUP_NOT_FOUND)
-                        .addDetail(GROUP_ID, id));
-        return GroupWithUsersDto.toModel(group);
+        Group savedGroup = groupRepository.save(group);
+
+        // Инвалидация общего кеша групп
+        cacheService.evictByPrefix(GROUPS);
+        logger.info("[CACHE] Invalidated groups cache after registration");
+
+        return savedGroup;
     }
 
     @Transactional
@@ -57,10 +78,17 @@ public class GroupService {
         users.forEach(user -> {
             user.removeGroup(group);
             userRepository.save(user);
+            // Инвалидация кеша пользователей
+            cacheService.evict("user_" + user.getId());
         });
 
         groupRepository.delete(group);
+
+        // Инвалидация кеша группы и общего кеша
+        cacheService.evict(GROUP + groupId);
+        cacheService.evictByPrefix(GROUPS);
         cacheService.invalidateUserCache();
+        logger.info("[CACHE] Invalidated group {} and user caches", groupId);
     }
 
     public void updateGroup(Long id, Group updatedGroup) {
@@ -70,6 +98,11 @@ public class GroupService {
 
         existingGroup.setName(updatedGroup.getName());
         groupRepository.save(existingGroup);
-        cacheService.invalidateUserCache();
+
+        // Инвалидация кеша группы и поиска по имени
+        cacheService.evict(GROUP + id);
+        cacheService.evict("group_by_name_" + existingGroup.getName());
+        cacheService.evictByPrefix(GROUPS);
+        logger.info("[CACHE] Invalidated group {} cache after update", id);
     }
 }

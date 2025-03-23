@@ -19,7 +19,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+    private static final String USER = "user_";
+    private static final String GROUPS = "groups_";
+    private static final String GROUP = "group_";
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final CacheService cacheService;
@@ -37,7 +40,7 @@ public class UserService {
         String cacheKey = "users_by_post_content_" + content;
         return (List<UserWithPostsAndGroupsDto>) cacheService.get(cacheKey)
                 .orElseGet(() -> {
-                    logger.info("[DB] Fetching users_by_post_content from database");
+                    LOGGER.info("[DB] Fetching users_by_post_content from database");
                     List<UserWithPostsAndGroupsDto> result = userRepository.findAllByPostContent(content)
                             .stream()
                             .map(UserWithPostsAndGroupsDto::toModel)
@@ -63,10 +66,20 @@ public class UserService {
     }
 
     public UserWithPostsAndGroupsDto getOne(Long id) {
-        return userRepository.findById(id)
-                .map(UserWithPostsAndGroupsDto::toModel)
-                .orElseThrow(() -> new NotFoundException("User not found with id: " + id)
-                        .addDetail("userId", id));
+        String cacheKey = USER + id;
+
+        return (UserWithPostsAndGroupsDto) cacheService.get(cacheKey)
+                .orElseGet(() -> {
+                    LOGGER.info("[DB] Fetching user from database by id: {}", id);
+
+                    UserWithPostsAndGroupsDto userDto = userRepository.findById(id)
+                            .map(UserWithPostsAndGroupsDto::toModel)
+                            .orElseThrow(() -> new NotFoundException("User not found with id: " + id)
+                                    .addDetail("userId", id));
+
+                    cacheService.put(cacheKey, userDto);
+                    return userDto;
+                });
     }
 
     public Long delete(Long id) throws NotFoundException {
@@ -75,7 +88,7 @@ public class UserService {
                     .addDetail("userId", id);
         }
         userRepository.deleteById(id);
-        cacheService.invalidateUserCache();
+        cacheService.evict(USER + id);
         return id;
     }
 
@@ -96,6 +109,9 @@ public class UserService {
 
         user.addGroup(group);
         userRepository.save(user);
+        cacheService.evict(USER + userId);
+        cacheService.evict(GROUP + groupId);
+        cacheService.evictByPrefix(GROUPS);
         cacheService.invalidateUserCache();
     }
 
@@ -106,7 +122,7 @@ public class UserService {
                 .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!!!"));
         user.removeGroup(group);
         userRepository.save(user);
-        cacheService.invalidateUserCache();
+        cacheService.evict(USER + userId);
     }
 
     public Set<Group> getUserGroups(Long userId) throws NotFoundException {
@@ -121,7 +137,7 @@ public class UserService {
         existingUser.setPassword(updatedUser.getPassword());
 
         userRepository.save(existingUser);
-        cacheService.invalidateUserCache();
+        cacheService.evict(USER + id);
     }
 }
 

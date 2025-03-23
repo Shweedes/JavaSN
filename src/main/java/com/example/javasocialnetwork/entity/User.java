@@ -1,5 +1,6 @@
 package com.example.javasocialnetwork.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,20 +22,35 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
+@Schema(description = "Сущность пользователя системы")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(hidden = true)
     private Long id;
 
     @NotNull(message = "Username cannot be null")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Username must contain only letters and numbers")
+    @Schema(
+            description = "Логин пользователя",
+            example = "John",
+            minLength = 3,
+            maxLength = 50,
+            pattern = "^[a-zA-Z0-9]+$"
+    )
     private String username;
 
     @NotNull(message = "Password cannot be null")
     @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$",
             message = "Password must contain at least one letter and one number")
+    @Schema(
+            description = "Пароль пользователя",
+            example = "john_doe123",
+            minLength = 3,
+            maxLength = 50,
+            pattern = "^[a-zA-Z0-9]+$")
     private String password;
 
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
@@ -43,6 +59,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
+    @Schema(hidden = true)
     private Set<Group> groups = new HashSet<>();
 
     public User() {
@@ -94,6 +111,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REMOVE },
             orphanRemoval = true, fetch = FetchType.LAZY)
+    @Schema(hidden = true)
     private List<Post> posts = new ArrayList<>();
 
     public List<Post> getPosts() {

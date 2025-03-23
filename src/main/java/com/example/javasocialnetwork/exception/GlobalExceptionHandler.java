@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
+    // Обработка 400 (валидация)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleApiException(ApiException ex) {
         HttpStatus status = switch (ex.getErrorCode()) {
             case "USER_NOT_FOUND", "GROUP_NOT_FOUND", "POST_NOT_FOUND" -> HttpStatus.NOT_FOUND;
-            case "USER_ALREADY_EXISTS", "GROUP_ALREADY_EXISTS" -> HttpStatus.CONFLICT;
+            case "USER_ALREADY_EXISTS", "GROUP_ALREADY_EXISTS" -> HttpStatus.CONFLICT; // 409
             default -> HttpStatus.BAD_REQUEST;
         };
 
@@ -39,18 +39,6 @@ public class GlobalExceptionHandler {
                         ex.getErrorCode(),
                         ex.getMessage(),
                         ex.getDetails()
-                )
-        );
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        return ResponseEntity.internalServerError().body(
-                new ErrorResponse(
-                        "INTERNAL_ERROR",
-                        "An unexpected error occurred",
-                        Map.of("cause", ex.getMessage())
                 )
         );
     }
