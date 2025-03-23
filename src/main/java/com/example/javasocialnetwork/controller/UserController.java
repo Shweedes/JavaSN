@@ -4,13 +4,17 @@ import com.example.javasocialnetwork.dto.UserWithPostsAndGroupsDto;
 import com.example.javasocialnetwork.entity.Group;
 import com.example.javasocialnetwork.entity.User;
 import com.example.javasocialnetwork.service.UserService;
-import java.util.List;
-import java.util.Set;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.slf4j.Logger;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Set;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @Tag(name = "User Controller", description = "Управление пользователями")
@@ -143,7 +143,7 @@ public class UserController {
             }
     )
     public ResponseEntity<List<UserWithPostsAndGroupsDto>> getUsersByPostContent(
-            @Parameter(description = "Содержимое поста для поиска", example = "Hello World")
+            @Parameter(description = "Содержимое поста для поиска", example = "post")
             @RequestParam String content) {
         List<UserWithPostsAndGroupsDto> users = userService.findByPostContent(content);
         if (users.isEmpty()) {

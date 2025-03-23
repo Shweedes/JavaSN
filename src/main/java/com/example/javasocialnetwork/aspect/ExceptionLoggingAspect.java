@@ -1,12 +1,12 @@
 package com.example.javasocialnetwork.aspect;
 
+import java.util.Arrays;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import java.util.Arrays;
 
 @Aspect
 @Component

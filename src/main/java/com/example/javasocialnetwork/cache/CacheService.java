@@ -84,7 +84,7 @@ public class CacheService {
     public void evict(String key) {
         CacheEntry removedEntry = cache.remove(key);
         if (removedEntry != null) {
-            LOGGER.info("[CACHE] Data evicted from cache for key: {}", key); // Должно логироваться
+            LOGGER.info("[CACHE] Data evicted from cache for key: {}", key);
         }
     }
 

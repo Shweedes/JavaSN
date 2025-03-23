@@ -2,7 +2,6 @@ package com.example.javasocialnetwork.dto;
 
 import com.example.javasocialnetwork.entity.Group;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.util.List;
 
 @Schema(description = "DTO группы с участниками")
