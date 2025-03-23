@@ -1,7 +1,7 @@
 package com.example.javasocialnetwork.exception;
 
-public class GroupNotFoundException extends Exception {
+public class GroupNotFoundException extends ApiException {
     public GroupNotFoundException(String message) {
-        super(message);
+        super("GROUP_NOT_FOUND", message);
     }
 }

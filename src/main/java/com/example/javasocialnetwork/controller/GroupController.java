@@ -2,9 +2,8 @@ package com.example.javasocialnetwork.controller;
 
 import com.example.javasocialnetwork.dto.GroupWithUsersDto;
 import com.example.javasocialnetwork.entity.Group;
-import com.example.javasocialnetwork.exception.GroupAlreadyExistException;
-import com.example.javasocialnetwork.exception.GroupNotFoundException;
 import com.example.javasocialnetwork.service.GroupService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,48 +26,30 @@ public class GroupController {
     }
 
     @PostMapping
-    public ResponseEntity<String> registrationGroup(@RequestBody Group group) {
-        try {
-            groupService.registration(group);
-            return ResponseEntity.ok().body("Group add!!!");
-        } catch (GroupAlreadyExistException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error");
-        }
+    public ResponseEntity<String> registrationGroup(@Valid @RequestBody Group group) {
+        groupService.registration(group);
+        return ResponseEntity.ok("Group add!!!");
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<GroupWithUsersDto> getOneGroupPath(@PathVariable Long id) {
-        try {
-            GroupWithUsersDto group = groupService.getOne(id);
-            return ResponseEntity.ok(group);
-        } catch (GroupNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        GroupWithUsersDto group = groupService.getOne(id);
+        return ResponseEntity.ok(group);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteGroup(@PathVariable Long id) {
-        try {
-            groupService.deleteGroup(id);
-            return ResponseEntity.ok("Group deleted successfully");
-        } catch (GroupNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        groupService.deleteGroup(id);
+        return ResponseEntity.ok("Group deleted successfully");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateGroup(@PathVariable Long id,
-                                              @RequestBody Group updatedGroup) {
-        try {
-            groupService.updateGroup(id, updatedGroup);
-            return ResponseEntity.ok("Group updated successfully!");
-        } catch (GroupNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error updating group.");
-        }
+    public ResponseEntity<String> updateGroup(
+            @PathVariable Long id,
+            @Valid @RequestBody Group updatedGroup
+    ) {
+        groupService.updateGroup(id, updatedGroup);
+        return ResponseEntity.ok("Group updated successfully!");
     }
 }
 

@@ -3,8 +3,8 @@ package com.example.javasocialnetwork.service;
 import com.example.javasocialnetwork.cache.CacheService;
 import com.example.javasocialnetwork.entity.Post;
 import com.example.javasocialnetwork.entity.User;
+import com.example.javasocialnetwork.exception.NotFoundException;
 import com.example.javasocialnetwork.exception.PostNotFoundException;
-import com.example.javasocialnetwork.exception.UserNotFoundException;
 import com.example.javasocialnetwork.repository.PostRepository;
 import com.example.javasocialnetwork.repository.UserRepository;
 import java.util.List;
@@ -24,39 +24,41 @@ public class PostService {
         this.cacheService = cacheService;
     }
 
-    public Post createPost(Long userId, String content) throws UserNotFoundException {
+    public Post createPost(Long userId, String content) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found")
+                        .addDetail("userId", userId));
 
         Post post = new Post(content, user);
-
         cacheService.invalidateUserCache();
-
         return postRepository.save(post);
     }
 
-    public List<Post> getUserPosts(Long userId) throws PostNotFoundException {
+    public List<Post> getUserPosts(Long userId) {
         List<Post> posts = postRepository.findByUserId(userId);
         if (posts.isEmpty()) {
-            throw new PostNotFoundException("No posts found for user with id: " + userId);
+            throw new PostNotFoundException("No posts found")
+                    .addDetail("userId", userId);
         }
         return posts;
     }
 
-    public void deletePost(Long postId) throws PostNotFoundException {
-        if (!postRepository.existsById(postId)) {
-            throw new PostNotFoundException("Post with id " + postId + " not found.");
-        }
-        postRepository.deleteById(postId);
+    public void deletePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post not found")
+                        .addDetail("postId", postId));
+
+        postRepository.delete(post);
         cacheService.invalidateUserCache();
     }
 
-    public void updatePost(Long postId, String content) throws PostNotFoundException {
+    public void updatePost(Long postId, String content) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post with this id does not exist!!!"));
+                .orElseThrow(() -> new PostNotFoundException("Post not found")
+                        .addDetail("postId", postId));
+
         post.setContent(content);
         postRepository.save(post);
-
         cacheService.invalidateUserCache();
     }
 }

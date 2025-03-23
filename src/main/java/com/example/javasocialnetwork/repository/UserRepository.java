@@ -21,7 +21,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT DISTINCT u FROM User u JOIN u.posts p WHERE p.content LIKE %:content%")
     List<User> findAllByPostContent(@Param("content") String content);
 
-    @Query(value = "SELECT DISTINCT u.* FROM users u JOIN posts p ON u.id = p.user_id WHERE p.content LIKE %:content%",
+    @Query(value = "SELECT DISTINCT u.* FROM users u JOIN posts p " +
+            "ON u.id = p.user_id WHERE p.content LIKE %:content%",
             nativeQuery = true)
     List<User> findAllByPostContentNative(@Param("content") String content);
+
+    boolean existsByUsername(String username);
 }

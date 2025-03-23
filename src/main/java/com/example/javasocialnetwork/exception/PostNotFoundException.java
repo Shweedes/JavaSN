@@ -1,7 +1,7 @@
 package com.example.javasocialnetwork.exception;
 
-public class PostNotFoundException extends Exception {
+public class PostNotFoundException extends ApiException {
     public PostNotFoundException(String message) {
-        super(message);
+        super("POST_FOUND", message);
     }
 }

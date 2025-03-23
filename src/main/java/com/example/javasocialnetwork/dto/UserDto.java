@@ -4,6 +4,8 @@ import com.example.javasocialnetwork.entity.User;
 
 public class UserDto {
     private Long id;
+
+
     private String username;
 
     public static UserDto toModel(User entity) {

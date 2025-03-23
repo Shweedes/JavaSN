@@ -29,44 +29,45 @@ public class GroupService {
         this.cacheService = cacheService;
     }
 
-    public Group registration(Group group) throws GroupAlreadyExistException {
+    public Group registration(Group group) {
         if (groupRepository.findByName(group.getName()) != null) {
-            throw new GroupAlreadyExistException("Group with this name already exists!!!");
+            throw new GroupAlreadyExistException("Group already exists")
+                    .addDetail("groupName", group.getName());
         }
-
         cacheService.invalidateUserCache();
         return groupRepository.save(group);
     }
 
-    public GroupWithUsersDto getOne(Long id) throws GroupNotFoundException {
+    public GroupWithUsersDto getOne(Long id) {
         Group group = groupRepository.findWithUsersById(id)
-                .orElseThrow(() -> new GroupNotFoundException("Group with this id not exist!"));
+                .orElseThrow(() -> new GroupNotFoundException("Group not found")
+                        .addDetail("groupId", id));
         return GroupWithUsersDto.toModel(group);
     }
 
     @Transactional
-    public void deleteGroup(Long groupId) throws GroupNotFoundException {
+    public void deleteGroup(Long groupId) {
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group not found"));
+                .orElseThrow(() -> new GroupNotFoundException("Group not found")
+                        .addDetail("groupId", groupId));
 
         Set<User> users = new HashSet<>(group.getUsers());
-
-        for (User user : users) {
+        users.forEach(user -> {
             user.removeGroup(group);
             userRepository.save(user);
-        }
+        });
 
         groupRepository.delete(group);
         cacheService.invalidateUserCache();
     }
 
-    public void updateGroup(Long id, Group updatedGroup) throws GroupNotFoundException {
+    public void updateGroup(Long id, Group updatedGroup) {
         Group existingGroup = groupRepository.findById(id)
-                .orElseThrow(() -> new GroupNotFoundException("Group with this ID does not exist!!!"));
+                .orElseThrow(() -> new GroupNotFoundException("Group not found")
+                        .addDetail("groupId", id));
+
         existingGroup.setName(updatedGroup.getName());
-
         groupRepository.save(existingGroup);
-
         cacheService.invalidateUserCache();
     }
 }
