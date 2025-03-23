@@ -1,7 +1,6 @@
 package com.example.javasocialnetwork.service;
 
 import com.example.javasocialnetwork.cache.CacheService;
-import com.example.javasocialnetwork.controller.UserController;
 import com.example.javasocialnetwork.dto.UserWithPostsAndGroupsDto;
 import com.example.javasocialnetwork.entity.Group;
 import com.example.javasocialnetwork.entity.User;
@@ -20,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final CacheService cacheService;
