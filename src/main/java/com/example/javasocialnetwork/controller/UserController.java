@@ -38,7 +38,7 @@ public class UserController {
     public ResponseEntity<String> registrationUser(
             @Valid @RequestBody User user
     ) {
-        logger.debug("Attempting to register user: {}", user.getUserName());
+        logger.debug("Attempting to register a new user.");
         userService.registration(user);
         return ResponseEntity.ok("User add!!!");
     }
