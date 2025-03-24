@@ -26,12 +26,6 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("VALIDATION_ERROR", "Validation failed", errors));
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("NOT_FOUND", ex.getMessage(), ex.getDetails()));
-    }
-
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiException(ApiException ex) {
         HttpStatus status = switch (ex.getErrorCode()) {
@@ -47,11 +41,5 @@ public class GlobalExceptionHandler {
                         ex.getDetails()
                 )
         );
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("INTERNAL_SERVER_ERROR", "An unexpected error occurred", Map.of()));
     }
 }
