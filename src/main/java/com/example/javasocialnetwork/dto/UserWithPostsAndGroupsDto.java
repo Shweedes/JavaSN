@@ -2,12 +2,19 @@ package com.example.javasocialnetwork.dto;
 
 import com.example.javasocialnetwork.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 @Schema(description = "DTO пользователя с постами и группами")
 public class UserWithPostsAndGroupsDto {
     @Schema(hidden = true)
     private Long id;
+
+    @NotNull(message = "Username cannot be null")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Username must contain only letters and numbers")
     @Schema(description = "Имя пользователя", example = "John")
     private String username;
     private List<PostDto> posts; // Список постов с id и content

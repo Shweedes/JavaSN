@@ -69,7 +69,7 @@ public class UserController {
                         {
                           "errorCode": "VALIDATION_ERROR",
                           "message": "Validation failed",
-                          "details": { "fieldName": "Ошибка валидации" }
+                          "details": { "fieldName": "Username must contain only letters and numbers" }
                         }
                         """
                                     )
@@ -83,9 +83,9 @@ public class UserController {
                                     examples = @ExampleObject(
                                             value = """
                         {
-                          "errorCode": "USER_NOT_FOUND",
-                          "message": "User not found",
-                          "details": { "userId": 123 }
+                          "errorCode": "USER_ALREADY_EXISTS",
+                          "message": "User already exists",
+                          "details": { "username": "Antonio" }
                         }
                         """
                                     )
