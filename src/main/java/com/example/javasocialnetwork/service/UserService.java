@@ -12,12 +12,14 @@ import com.example.javasocialnetwork.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     private static final String USER = "user_";
@@ -34,6 +36,17 @@ public class UserService {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.cacheService = cacheService;
+    }
+
+    @Transactional
+    public List<User> bulkCreateUsers(List<User> users) {
+        List<User> newUsers = users.stream()
+                .filter(user -> !userRepository.existsByUsername(user.getUserName()))
+                .toList(); // Замена Collectors.toList() на Stream.toList()
+
+        List<User> savedUsers = userRepository.saveAll(newUsers);
+        cacheService.invalidateUserCache();
+        return savedUsers;
     }
 
     public List<UserWithPostsAndGroupsDto> findByPostContent(String content) {

@@ -20,15 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Tag(name = "User Controller", description = "Управление пользователями")
@@ -41,6 +33,50 @@ public class UserController {
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    @Operation(
+            summary = "Массовое создание пользователей",
+            description = "Создает несколько пользователей за один запрос, пропуская уже существующие",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Пользователи созданы",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            value = """
+                        "Created 3 users successfully"
+                    """
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Невалидные данные в запросе",
+                            content = @Content(
+                                    schema = @Schema(implementation = ErrorResponse.class),
+                                    examples = @ExampleObject(
+                                            value = """
+                        {
+                            "errorCode": "VALIDATION_ERROR",
+                            "message": "Validation failed",
+                            "details": {
+                                "users[0].username": "Username must contain only letters and numbers"
+                            }
+                        }
+                    """
+                                    )
+                            )
+                    )
+            }
+    )
+    @PostMapping("/bulk")
+    public ResponseEntity<String> bulkCreateUsers(
+            @Valid @RequestBody List<User> users
+    ) {
+        int createdCount = userService.bulkCreateUsers(users).size();
+        return ResponseEntity.ok("Created " + createdCount + " users successfully");
     }
 
     @Operation(

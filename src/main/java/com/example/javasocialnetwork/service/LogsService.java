@@ -59,7 +59,7 @@ public class LogsService {
         }
     }
 
-    private List<Path> getLogFilesInOrder() throws IOException {
+    public List<Path> getLogFilesInOrder() throws IOException {
         Path mainLogFile = Paths.get(logFilePath);
         Path logDir = mainLogFile.getParent();
         String baseName = mainLogFile.getFileName().toString();

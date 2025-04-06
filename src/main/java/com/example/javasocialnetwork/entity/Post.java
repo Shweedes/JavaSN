@@ -58,4 +58,8 @@ public class Post {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public void setId(long l) {
+        // empty
+    }
 }
