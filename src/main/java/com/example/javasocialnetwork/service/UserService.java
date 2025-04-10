@@ -42,7 +42,7 @@ public class UserService {
     public List<User> bulkCreateUsers(List<User> users) {
         List<User> newUsers = users.stream()
                 .filter(user -> !userRepository.existsByUsername(user.getUserName()))
-                .toList(); // Замена Collectors.toList() на Stream.toList()
+                .toList();
 
         List<User> savedUsers = userRepository.saveAll(newUsers);
         cacheService.invalidateUserCache();

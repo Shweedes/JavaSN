@@ -1,55 +1,133 @@
 package com.example.javasocialnetwork.service;
 
+import com.example.javasocialnetwork.exception.NotFoundException;
+import com.example.javasocialnetwork.exception.TaskExecutionException;
+import com.example.javasocialnetwork.exception.TaskInterruptedException;
 import com.example.javasocialnetwork.exception.ValidationException;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.stereotype.Service;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 @Service
 public class LogsService {
+    private static final long TASK_TTL_MINUTES = 1;
+    private static final String LOG_PREFIX = "logs_";
+    private final Map<String, TaskWrapper> tasks = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService cleanupExecutor = Executors.newSingleThreadScheduledExecutor();
+
     @Value("${logging.file.name}")
     private String logFilePath;
 
-    public List<String> collectLogs(LocalDate targetDate) throws IOException {
-        List<Path> logFiles = getLogFilesInOrder();
-        List<String> result = new ArrayList<>();
+    @PostConstruct
+    public void init() {
+        cleanupExecutor.scheduleAtFixedRate(
+                this::cleanupOldTasks,
+                1, 1, TimeUnit.MINUTES);
+    }
 
-        for (Path file : logFiles) {
-            try (Stream<String> lines = Files.lines(file)) {
-                for (String line : lines.toList()) {
-                    if (line.length() < 10 || !line.substring(0, 10).matches("\\d{4}-\\d{2}-\\d{2}")) {
-                        continue;
-                    }
-
-                    String lineDateStr = line.substring(0, 10);
-                    try {
-                        LocalDate lineDate = LocalDate.parse(lineDateStr);
-                        if (lineDate.isEqual(targetDate)) {
-                            result.add(line);
-                        }
-                    } catch (DateTimeParseException ignore) {
-                        // ignore
-                    }
-                }
+    @PreDestroy
+    public void cleanup() {
+        cleanupExecutor.shutdown();
+        try {
+            if (!cleanupExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                cleanupExecutor.shutdownNow();
             }
+        } catch (InterruptedException e) {
+            cleanupExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
-        return result;
+    }
+
+    public String createLogFileAsync(String date) {
+        String taskId = UUID.randomUUID().toString();
+        CompletableFuture<LogFileResult> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                List<String> logs = getLogsForDate(LocalDate.parse(date));
+                String filename = LOG_PREFIX + date + ".log";
+                ByteArrayResource resource = createResource(logs, filename);
+                return new LogFileResult(resource, filename);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        });
+        tasks.put(taskId, new TaskWrapper(future));
+        return taskId;
+    }
+
+    private ByteArrayResource createResource(List<String> logs, String filename) {
+        String content = String.join("\n", logs);
+        return new ByteArrayResource(content.getBytes(StandardCharsets.UTF_8)) {
+            @Override
+            public String getFilename() {
+                return filename;
+            }
+        };
+    }
+
+    public Map<String, Object> getTaskStatus(String taskId) {
+        TaskWrapper wrapper = tasks.get(taskId);
+        if (wrapper.isExpired()) {
+            throw new NotFoundException("Task not found or expired");
+        }
+        return wrapper.getStatus();
+    }
+
+    public LogFileResult getTaskLog(String taskId) {
+        TaskWrapper wrapper = tasks.get(taskId);
+        if (wrapper == null || wrapper.isExpired()) {
+            throw new NotFoundException("Task not found or expired");
+        }
+        if (!wrapper.isDone()) {
+            throw new IllegalStateException("Task is still processing");
+        }
+        return wrapper.getResult();
+    }
+
+    private void cleanupOldTasks() {
+        tasks.entrySet().removeIf(entry -> entry.getValue().isExpired());
+    }
+
+    public List<String> getLogsForDate(LocalDate date) {
+        try {
+            return getLogFilesForDate(date).stream()
+                    .flatMap(this::readLinesSafely)
+                    .filter(line -> isLineDateMatch(line, date))
+                    .toList();
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private Stream<String> readLinesSafely(Path file) {
+        try {
+            return Files.lines(file);
+        } catch (IOException e) {
+            return Stream.empty();
+        }
+    }
+
+    private boolean isLineDateMatch(String line, LocalDate targetDate) {
+        return line.length() >= 10 && line.startsWith(targetDate.toString());
     }
 
     public LocalDate parseDate(String date) {
         try {
             return LocalDate.parse(date);
         } catch (DateTimeParseException ex) {
-            throw new ValidationException("Invalid date format");
+            throw new ValidationException("Invalid date format (yyyy-MM-dd)");
         }
     }
 
@@ -59,16 +137,112 @@ public class LogsService {
         }
     }
 
-    public List<Path> getLogFilesInOrder() throws IOException {
-        Path mainLogFile = Paths.get(logFilePath);
-        Path logDir = mainLogFile.getParent();
-        String baseName = mainLogFile.getFileName().toString();
+    private List<Path> getLogFilesForDate(LocalDate targetDate) throws IOException {
+        Path logDir = Paths.get(logFilePath).getParent();
+        boolean isToday = targetDate.equals(LocalDate.now());
 
-        try (Stream<Path> pathStream = Files.list(logDir)) {
-            return pathStream
-                    .filter(path -> path.getFileName().toString().startsWith(baseName))
-                    .sorted(Comparator.reverseOrder())
+        try (Stream<Path> paths = Files.list(logDir)) {
+            List<Path> files = paths
+                    .filter(path -> isRelevantLogFile(path, targetDate))
+                    .sorted(this::compareLogFiles)
                     .toList();
+
+            if (isToday) {
+                Path currentFile = Paths.get(logFilePath);
+                if (Files.exists(currentFile)) {
+                    List<Path> result = new ArrayList<>(files);
+                    result.add(currentFile);
+                    return result;
+                }
+            }
+            return files;
+        }
+    }
+
+    private boolean isRelevantLogFile(Path path, LocalDate targetDate) {
+        String fileName = path.getFileName().toString();
+        return fileName.matches("application\\." + targetDate + "\\.\\d+\\.log");
+    }
+
+    private int compareLogFiles(Path p1, Path p2) {
+        String n1 = p1.getFileName().toString();
+        String n2 = p2.getFileName().toString();
+        return extractFileIndex(n1) - extractFileIndex(n2);
+    }
+
+    private int extractFileIndex(String filename) {
+        Matcher m = Pattern.compile("\\.(\\d+)\\.log$").matcher(filename);
+        return m.find() ? Integer.parseInt(m.group(1)) : 0;
+    }
+
+    @Getter
+    public static class LogFileResult {
+        private final ByteArrayResource resource;
+        private final String filename;
+        private final boolean isEmpty;
+
+        public LogFileResult(ByteArrayResource resource, String filename) {
+            this.resource = resource;
+            this.filename = filename;
+            this.isEmpty = resource.contentLength() == 0;
+        }
+
+        public ByteArrayResource getResource() {
+            if (isEmpty) {
+                throw new IllegalStateException("No resource available (empty logs)");
+            }
+            return resource;
+        }
+
+        public long getContentLength() {
+            return isEmpty ? 0 : resource.contentLength();
+        }
+    }
+
+    private static class TaskWrapper {
+        private final CompletableFuture<LogFileResult> future;
+        private volatile long expirationTime;
+        private boolean isCompleted = false;
+
+        TaskWrapper(CompletableFuture<LogFileResult> future) {
+            this.future = future;
+            this.expirationTime = Long.MAX_VALUE;
+            future.whenComplete((result, ex) -> {
+                this.isCompleted = true;
+                this.expirationTime = System.currentTimeMillis() +
+                        TimeUnit.MINUTES.toMillis(TASK_TTL_MINUTES);
+            });
+        }
+
+        boolean isExpired() {
+            return System.currentTimeMillis() > expirationTime;
+        }
+
+        long calculateRemainingTime() {
+            long remaining = expirationTime - System.currentTimeMillis();
+            return TimeUnit.MILLISECONDS.toSeconds(Math.max(remaining, 0));
+        }
+
+        boolean isDone() {
+            return future.isDone();
+        }
+
+        LogFileResult getResult() {
+            try {
+                return future.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new TaskInterruptedException("Task was interrupted", e);
+            } catch (ExecutionException e) {
+                throw new TaskExecutionException("Task execution failed", e.getCause());
+            }
+        }
+
+        Map<String, Object> getStatus() {
+            Map<String, Object> status = new HashMap<>();
+            status.put("isCompleted", isCompleted);
+            status.put("expiresIn", calculateRemainingTime());
+            return status;
         }
     }
 }

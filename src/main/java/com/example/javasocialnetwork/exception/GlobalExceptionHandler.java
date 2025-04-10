@@ -1,8 +1,8 @@
 package com.example.javasocialnetwork.exception;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,5 +57,25 @@ public class GlobalExceptionHandler {
                         ex.getDetails()
                 )
         );
+    }
+
+    @ExceptionHandler({NotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                "NOT_FOUND",
+                ex.getMessage(),
+                ex.getDetails()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler({IllegalStateException.class})
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex) {
+        ErrorResponse error = new ErrorResponse(
+                "BAD_REQUEST",
+                ex.getMessage(),
+                Collections.emptyMap()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
