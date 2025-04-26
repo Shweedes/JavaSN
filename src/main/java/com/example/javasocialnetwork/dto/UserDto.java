@@ -22,7 +22,7 @@ public class UserDto {
     public static UserDto toModel(User entity) {
         UserDto model = new UserDto();
         model.setId(entity.getId());
-        model.setUsername(entity.getUserName());
+        model.setUsername(entity.getUsername());
         return model;
     }
 

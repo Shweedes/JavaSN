@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,20 +29,27 @@ public class UserService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final CacheService cacheService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepository userRepository,
                        GroupRepository groupRepository,
-                       CacheService cacheService) {
+                       CacheService cacheService,
+                       BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.cacheService = cacheService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     @Transactional
     public List<User> bulkCreateUsers(List<User> users) {
         List<User> newUsers = users.stream()
-                .filter(user -> !userRepository.existsByUsername(user.getUserName()))
+                .filter(user -> !userRepository.existsByUsername(user.getUsername()))
                 .toList();
 
         List<User> savedUsers = userRepository.saveAll(newUsers);
@@ -69,10 +77,14 @@ public class UserService {
     }
 
     public User registration(User user) throws UserAlreadyExistException {
-        if (userRepository.existsByUsername(user.getUserName())) {
+        if (userRepository.existsByUsername(user.getUsername())) {
             throw new UserAlreadyExistException("User already exists")
-                    .addDetail("username", user.getUserName());
+                    .addDetail("username", user.getUsername());
         }
+
+        // Шифруем пароль перед сохранением
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         User savedUser = userRepository.save(user);
         cacheService.invalidateUserCache();
         return savedUser;
@@ -146,11 +158,10 @@ public class UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with this ID not exist!!!"));
 
-        existingUser.setUserName(updatedUser.getUserName());
+        existingUser.setUserName(updatedUser.getUsername());
         existingUser.setPassword(updatedUser.getPassword());
 
         userRepository.save(existingUser);
         cacheService.evict(USER + id);
     }
 }
-

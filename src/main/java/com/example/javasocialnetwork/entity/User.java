@@ -1,24 +1,11 @@
 package com.example.javasocialnetwork.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -39,12 +26,11 @@ public class User {
             maxLength = 50,
             pattern = "^[a-zA-Z0-9]+$"
     )
+    @Column(nullable = false, unique = true)
     private String username;
 
     @NotNull(message = "Password cannot be null")
-    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$",
-            message = "Password must contain at least one letter and one number")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$", message = "Password must contain at least one letter and one number")
     @Schema(
             description = "Пароль пользователя",
             example = "john_doe123",
@@ -74,7 +60,7 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
+    public String getUsername() {
         return username;
     }
 

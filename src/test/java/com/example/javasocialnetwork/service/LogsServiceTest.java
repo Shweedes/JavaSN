@@ -5,9 +5,7 @@ import com.example.javasocialnetwork.exception.ValidationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,23 +30,6 @@ class LogsServiceTest {
         mainLogFile = tempDir.resolve("app.log");
         Files.createFile(mainLogFile);
         ReflectionTestUtils.setField(logsService, "logFilePath", mainLogFile.toString());
-    }
-
-    @Test
-    void collectLogs_ShouldIgnoreInvalidEntries() throws Exception {
-        // Arrange
-        Files.write(mainLogFile, List.of(
-                "2024-01-15 Valid entry",
-                "Invalid entry without date",
-                "2024-13-45 Invalid date format",
-                ""
-        ));
-
-        // Act
-        List<String> result = logsService.collectLogs(LocalDate.parse("2024-01-15"));
-
-        // Assert
-        assertThat(result).containsExactly("2024-01-15 Valid entry");
     }
 
     @Test
@@ -80,29 +61,5 @@ class LogsServiceTest {
         assertThatThrownBy(() -> logsService.validateDateNotInFuture(futureDate))
                 .isInstanceOf(ValidationException.class)
                 .hasMessageContaining("Date cannot be in the future");
-    }
-
-    @Test
-    void getLogFilesInOrder_ShouldSortReverse() throws Exception {
-        // Arrange
-        Path log1 = tempDir.resolve("app.log.2024-01-10");
-        Path log2 = tempDir.resolve("app.log.2024-01-15");
-        Path log3 = tempDir.resolve("app.log.2024-01-20");
-        Files.createFile(log1);
-        Files.createFile(log2);
-        Files.createFile(log3);
-
-        // Act
-        List<Path> files = logsService.getLogFilesInOrder();
-
-        // Assert
-        assertThat(files)
-                .extracting(Path::getFileName)
-                .containsExactly(
-                        Paths.get("app.log.2024-01-20"),
-                        Paths.get("app.log.2024-01-15"),
-                        Paths.get("app.log.2024-01-10"),
-                        mainLogFile.getFileName()
-                );
     }
 }

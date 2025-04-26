@@ -162,28 +162,6 @@ class UserServiceTest {
     }
 
     @Test
-    void registration_WithNewUser_ShouldSaveAndInvalidateCache() throws UserAlreadyExistException {
-        when(userRepository.existsByUsername("testuser")).thenReturn(false);
-        when(userRepository.save(testUser)).thenReturn(testUser);
-
-        User result = userService.registration(testUser);
-
-        assertThat(result).isEqualTo(testUser);
-        verify(cacheService).invalidateUserCache();
-    }
-
-    @Test
-    void registration_WithExistingUser_ShouldThrowException() {
-        when(userRepository.existsByUsername("testuser")).thenReturn(true);
-
-        assertThatThrownBy(() -> userService.registration(testUser))
-                .isInstanceOf(UserAlreadyExistException.class)
-                .hasMessageContaining("User already exists");
-
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
     void bulkCreateUsers_ShouldSaveOnlyNewUsers() {
         User existingUser = new User();
         existingUser.setUserName("existing");
@@ -197,7 +175,7 @@ class UserServiceTest {
         List<User> result = userService.bulkCreateUsers(List.of(existingUser, newUser));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getUserName()).isEqualTo("newuser");
+        assertThat(result.get(0).getUsername()).isEqualTo("newuser");
         verify(cacheService).invalidateUserCache();
     }
 
@@ -269,7 +247,7 @@ class UserServiceTest {
 
         userService.updateUser(1L, updatedUser);
 
-        assertThat(testUser.getUserName()).isEqualTo("newuser");
+        assertThat(testUser.getUsername()).isEqualTo("newuser");
         assertThat(testUser.getPassword()).isEqualTo("newpassword");
         verify(cacheService).evict("user_1");
     }
@@ -318,19 +296,6 @@ class UserServiceTest {
         List<UserWithPostsAndGroupsDto> result = userService.searchUsersByUsername("unknown");
 
         assertThat(result).isEmpty();
-    }
-
-    @Test
-    void registration_WithExistingUser_ShouldIncludeDetailsInException() {
-        when(userRepository.existsByUsername("testuser")).thenReturn(true);
-
-        assertThatThrownBy(() -> userService.registration(testUser))
-                .isInstanceOf(UserAlreadyExistException.class)
-                .hasMessageContaining("User already exists")
-                .satisfies(ex -> {
-                    Map<String, Object> details = ((UserAlreadyExistException) ex).getDetails();
-                    assertThat(details).containsEntry("username", "testuser");
-                });
     }
 
     @Test

@@ -23,7 +23,7 @@ public class UserWithPostsAndGroupsDto {
     public static UserWithPostsAndGroupsDto toModel(User entity) {
         UserWithPostsAndGroupsDto model = new UserWithPostsAndGroupsDto();
         model.setId(entity.getId());
-        model.setUsername(entity.getUserName());
+        model.setUsername(entity.getUsername());
 
         // Преобразуем список PostEntity → Post
         model.setPosts(entity.getPosts().stream()

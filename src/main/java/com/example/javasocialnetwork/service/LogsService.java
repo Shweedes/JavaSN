@@ -23,6 +23,8 @@ import java.util.stream.Stream;
 
 @Service
 public class LogsService {
+    private static final String TASK_ID = "taskId";
+    private static final String STATUS = "status";
     private static final long TASK_TTL_MINUTES = 1;
     private static final String LOG_PREFIX = "logs_";
     private final Map<String, TaskWrapper> tasks = new ConcurrentHashMap<>();
@@ -55,6 +57,8 @@ public class LogsService {
         String taskId = UUID.randomUUID().toString();
         CompletableFuture<LogFileResult> future = CompletableFuture.supplyAsync(() -> {
             try {
+                Thread.sleep(30000);
+
                 List<String> logs = getLogsForDate(LocalDate.parse(date));
                 String filename = LOG_PREFIX + date + ".log";
                 ByteArrayResource resource = createResource(logs, filename);
@@ -79,15 +83,35 @@ public class LogsService {
 
     public Map<String, Object> getTaskStatus(String taskId) {
         TaskWrapper wrapper = tasks.get(taskId);
-        if (wrapper.isExpired()) {
-            throw new NotFoundException("Task not found or expired");
+        if (wrapper == null || wrapper.isExpired(System.currentTimeMillis())) {
+            throw new NotFoundException("Task not found or expired")
+                    .addDetail(TASK_ID, taskId);
         }
-        return wrapper.getStatus();
+        Map<String, Object> response = new HashMap<>();
+
+        if (wrapper.isDone()) {
+            try {
+                LogFileResult result = wrapper.getResult();
+                response.put(STATUS, "COMPLETED");
+                response.put("hasLogs", !result.isEmpty());
+                response.put("filename", result.getFilename());
+                response.put("expiresIn", wrapper.calculateRemainingTime() + " seconds");
+            } catch (Exception e) {
+                response.put(STATUS, "FAILED");
+                response.put("error", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            }
+        } else {
+            response.put(STATUS, "PENDING");
+        }
+
+        return response;
     }
+
 
     public LogFileResult getTaskLog(String taskId) {
         TaskWrapper wrapper = tasks.get(taskId);
-        if (wrapper == null || wrapper.isExpired()) {
+        long currentTime = System.currentTimeMillis();
+        if (wrapper == null || wrapper.isExpired(currentTime)) { // Добавлен currentTime
             throw new NotFoundException("Task not found or expired");
         }
         if (!wrapper.isDone()) {
@@ -97,7 +121,8 @@ public class LogsService {
     }
 
     private void cleanupOldTasks() {
-        tasks.entrySet().removeIf(entry -> entry.getValue().isExpired());
+        long currentTime = System.currentTimeMillis();
+        tasks.entrySet().removeIf(entry -> entry.getValue().isExpired(currentTime));
     }
 
     public List<String> getLogsForDate(LocalDate date) {
@@ -214,8 +239,8 @@ public class LogsService {
             });
         }
 
-        boolean isExpired() {
-            return System.currentTimeMillis() > expirationTime;
+        boolean isExpired(long currentTime) {
+            return currentTime > expirationTime;
         }
 
         long calculateRemainingTime() {

@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @Tag(name = "Group Controller", description = "Управление группами пользователей")
 @RequestMapping("/groups")
@@ -33,6 +35,14 @@ public class GroupController {
     public GroupController(GroupService groupService) {
         this.groupService = groupService;
     }
+
+    @GetMapping
+    @Operation(summary = "Получить все группы", description = "Возвращает список всех групп с пользователями")
+    public ResponseEntity<List<GroupWithUsersDto>> getAllGroups() {
+        List<GroupWithUsersDto> groups = groupService.getAllGroups();
+        return ResponseEntity.ok(groups);
+    }
+
 
     @Operation(
             summary = "Создать группу",

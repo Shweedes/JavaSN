@@ -133,7 +133,7 @@ public class UserController {
     public ResponseEntity<String> registrationUser(
             @Valid @RequestBody User user
     ) {
-        LOGGER.debug("Attempting to register user: {}", user.getUserName());
+        LOGGER.debug("Attempting to register user: {}", user.getUsername());
         userService.registration(user);
         return ResponseEntity.ok("User add!!!");
     }

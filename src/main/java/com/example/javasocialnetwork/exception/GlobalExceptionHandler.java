@@ -15,6 +15,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(DuplicateUserNameException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateUsername(DuplicateUserNameException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("errorCode", "USERNAME_EXISTS");
+        error.put("message", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {

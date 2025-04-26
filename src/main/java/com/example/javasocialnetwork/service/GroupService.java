@@ -10,7 +10,10 @@ import com.example.javasocialnetwork.repository.GroupRepository;
 import com.example.javasocialnetwork.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,12 @@ public class GroupService {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.cacheService = cacheService;
+    }
+
+    public List<GroupWithUsersDto> getAllGroups() {
+        return groupRepository.findAll().stream()
+                .map(GroupWithUsersDto::toModel)
+                .collect(Collectors.toList());
     }
 
     public GroupWithUsersDto getOne(Long id) {
